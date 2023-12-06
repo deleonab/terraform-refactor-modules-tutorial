@@ -25,73 +25,6 @@ TODAY'S TASK
 
 ### Create provider  provider.tf
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 TUTORIAL:
 HOW TO USE AND WRITE CUSTOM TERRAFORM MODULES
 
@@ -120,6 +53,7 @@ TODAY'S TASK
 ### Create provider  provider.tf
 
 # Configure the AWS Provider
+```
 provider "aws" {
   region = "us-east-1"
 }
@@ -131,7 +65,7 @@ terraform {
     }
   }
 }
-
+```
 
 ### Create 2  EC2 Instances 
 ### create my_ec2.tf
@@ -139,7 +73,7 @@ terraform {
 touch my_ec2.tf
 ```
 
-
+```
 resource "aws_instance" "my_instance" {
   count = var.ec2_count
   ami           = var.ami
@@ -149,7 +83,7 @@ subnet_id = aws_subnet.public.id
     Name = "my_EC2-${count.index}"
   }
 }
-
+```
 ### create variables.tf to give default values to our variables
 
 ```
@@ -178,6 +112,7 @@ touch networking.tf
 ```
 
 ### Create the VPC
+```
 resource "aws_vpc" "main" {
   cidr_block       = var.vpc_cidr
   instance_tenancy = "default"
@@ -186,9 +121,9 @@ resource "aws_vpc" "main" {
     Name = "main_vpc"
   }
 }
-
+```
 ### Create the public subnet
-
+```
 resource "aws_subnet" "public" {
     
   vpc_id     = aws_vpc.main.id
@@ -198,8 +133,9 @@ resource "aws_subnet" "public" {
     Name = "Main_public_subnet"
   }
 }
- 
+ ```
  ### Create internet gateway
+ ```
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
@@ -207,8 +143,9 @@ resource "aws_internet_gateway" "igw" {
     Name = "main_igw"
   }
 }
+```
 ### Public route table
-
+```
 resource "aws_route_table" "rtb-public" {
   vpc_id = aws_vpc.main.id
 
@@ -227,12 +164,12 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.rtb-public.id
 }
 
-
+```
 
 
 
 ### Let's update variables.tf to include the variables in networking.tf
-
+```
 variable "ami" {
   default = "ami-0fc5d935ebf8bc3bc"
 }
@@ -249,7 +186,7 @@ variable "vpc_cidr" {
 variable "subnet_cidr" {
   default = "10.0.1.0/24"
 }
-
+```
 ### Let's run the commands to create the EC2 Instance in AWS. We shall create and then convert our code to a module
 
 terraform init
@@ -469,7 +406,7 @@ subnet_cidr ="10.0.1.0/24"
 ```
 
 ### Now we run the Terraform commands to create our instance and vpc using the modules
-
+```
 terraform init
 Initialise backend, provider plugins and our my_ec2_module
 
@@ -478,51 +415,15 @@ Do a dry run of the resources to be created
 
 terraform apply -auto-approve
 Create the infrastructure
-
+```
 
 ### EC2 instance was created successfully. 
 
-### Any configuration that has the path of our module can use it and only have to change the tfvars file.
-
-Let's destroy the infrastructure and recreate with different values to see how easy it is to reuse it.
-
-```
-terraform destroy -auto-approve
-```
-### Infrastructure destroyed
-
-THe current terraform.tfvars is as below
-```
-ami = "ami-0fc5d935ebf8bc3bc"      ###You can get one from the AWS console
-instance_type = "t2.micro"
-ec2_count = 2
-```
-
-### Perhaps we need 3 instances with a higher specification such as a t2.medium
-
-### All you have to do is to edit the terraform.tfvars file as below
-
-```
-ec2_count = 3
-ami = "ami-0fc5d935ebf8bc3bc"      ###You can get one from the AWS console
-instance_type = "t2.medium"
-```
-
-### save and run commands again. you will now have a larger instance
-
-terraform init
-Initialise backend, provider plugins and our my_ec2_module
-
-terraform plan
-Do a dry run of the resources to be created
-
-terraform apply -auto-approve
-Create the infrastructure
-
+### Now you can create different versions of your infrastructure by simply changing the values in terraform.tfvars
 ### Infrastructure will be created with the new configuration
 
 Success!!! 
-You have learnt how to create a basic reusable Terraform module
+You have learnt how to create  basic reusable Terraform modules
 
 The module solves the problem of having to write a common process over and over again.
 
@@ -535,7 +436,7 @@ We can overcome this by having a seperate Terraform code and statefiles for each
 This however is code duplication and shouldn't be done except in special cases.
 
 The way to overcome this problem is to use Terraform Workspaces.
-With workdpaces, we can use the same terraform code but different statefiles for each environment.
+With workdpaces, we can use the same terraform configuration but with different statefiles for each environment.
 
 I will continue this class in part 2 of this tutorial.
 
